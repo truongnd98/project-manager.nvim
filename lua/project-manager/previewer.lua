@@ -1,14 +1,12 @@
 local previewers = require("telescope.previewers")
 local utils = require("telescope.utils")
 local Path = require("plenary.path")
+local putils = require("telescope.previewers.utils")
 local from_entry = require("telescope.from_entry")
-
-local defaulter = utils.make_default_callable
 
 local M = {}
 
-M.eza = defaulter(function(opts)
-	print("eza opts", vim.inspect(opts))
+M.eza = function(opts)
 	opts = opts or {}
 
 	local cwd = opts.cwd or vim.loop.cwd()
@@ -17,6 +15,10 @@ M.eza = defaulter(function(opts)
 		title = "Eza Preview",
 		dyn_title = function(_, entry)
 			return Path:new(from_entry.path(entry, false, false)):normalize(cwd)
+		end,
+
+		get_buffer_by_name = function(_, entry)
+			return from_entry.path(entry, false, false)
 		end,
 
 		get_command = function(entry)
@@ -33,11 +35,42 @@ M.eza = defaulter(function(opts)
 				return
 			end
 
-			print("cmd", { "eza", "--tree", utils.path_expand(dirname) })
+			return { "eza", "--tree", "--icons", "always", "--", utils.path_expand(dirname) }
+		end,
 
-			return { "eza", "--tree", utils.path_expand(dirname) }
+		define_preview = function(self, entry)
+			local dirname = from_entry.path(entry, true, false)
+			if dirname == nil or dirname == "" then
+				return
+			end
+
+			if not vim.fn.executable("eza") then
+				utils.notify("previewer.eza", {
+					msg = "You need to install either `eza` or `ls`",
+					level = "ERROR",
+				})
+				return
+			end
+
+			local cmd = { "eza", "--tree", "--icons", "always", "--", utils.path_expand(dirname) }
+
+			putils.job_maker(cmd, self.state.bufnr, {
+				value = entry.value,
+				bufname = self.state.bufname,
+				cwd = opts.cwd,
+				callback = function(bufnr, content)
+					if not content then
+						return
+					end
+
+					utils.notify("previewer.eza", {
+						msg = vim.inspect(content),
+						level = "INFO",
+					})
+				end,
+			})
 		end,
 	})
-end, {})
+end
 
 return M

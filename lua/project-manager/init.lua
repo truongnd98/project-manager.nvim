@@ -90,15 +90,13 @@ M.find_dirs = function(opts)
 
 	opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
 
-	print(vim.inspect(find_command))
-
 	return pickers
 		.new(opts, {
 			prompt_title = "Find Directories",
 			__locations_input = true,
 			finder = finders.new_oneshot_job(find_command, opts),
 			previewer = previewers.eza(opts),
-			sorter = conf.file_sorter(opts),
+			-- sorter = conf.file_sorter(opts),
 		})
 		:find()
 end
