@@ -1,12 +1,13 @@
+local previewers = require("telescope.previewers")
 local utils = require("telescope.utils")
 local Path = require("plenary.path")
 local from_entry = require("telescope.from_entry")
 
-local defaulter = utils.make_default_callable
+local defaulter = utils.make_default_callablocal
 
-local previewers = {}
+local M = {}
 
-previewers.eza = defaulter(function(opts)
+M.eza = defaulter(function(opts)
 	opts = opts or {}
 
 	local cwd = opts.cwd or vim.loop.cwd()
@@ -36,4 +37,4 @@ previewers.eza = defaulter(function(opts)
 	})
 end, {})
 
-return previewers
+return M
