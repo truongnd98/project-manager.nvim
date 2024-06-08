@@ -3,7 +3,7 @@ local utils = require("telescope.utils")
 local Path = require("plenary.path")
 local from_entry = require("telescope.from_entry")
 
-local defaulter = utils.make_default_callablocal
+local defaulter = utils.make_default_callable
 
 local M = {}
 
