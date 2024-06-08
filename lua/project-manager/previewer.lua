@@ -8,6 +8,7 @@ local defaulter = utils.make_default_callable
 local M = {}
 
 M.eza = defaulter(function(opts)
+	print("eza opts", vim.inspect(opts))
 	opts = opts or {}
 
 	local cwd = opts.cwd or vim.loop.cwd()
@@ -25,12 +26,14 @@ M.eza = defaulter(function(opts)
 			end
 
 			if not vim.fn.executable("eza") then
-				utils.notify("previewers.eza", {
+				utils.notify("previewer.eza", {
 					msg = "You need to install either `eza` or `ls`",
 					level = "ERROR",
 				})
 				return
 			end
+
+			print("cmd", { "eza", "--tree", utils.path_expand(dirname) })
 
 			return { "eza", "--tree", utils.path_expand(dirname) }
 		end,
