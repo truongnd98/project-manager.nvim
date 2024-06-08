@@ -5,6 +5,8 @@ local utils = require("telescope.utils")
 local conf = require("telescope.config").values
 local log = require("telescope.log")
 
+local previewers = require("project-manager.previewer")
+
 local flatten = utils.flatten
 
 local M = {}
@@ -25,7 +27,7 @@ M.find_dirs = function(opts)
 
 	if not find_command then
 		utils.notify("M.find_dirs", {
-			msg = "You need to install either find or fd",
+			msg = "You need to install either `fd` or `find`",
 			level = "ERROR",
 		})
 		return
@@ -95,7 +97,7 @@ M.find_dirs = function(opts)
 			prompt_title = "Find Directories",
 			__locations_input = true,
 			finder = finders.new_oneshot_job(find_command, opts),
-			previewer = conf.grep_previewer(opts),
+			previewer = previewers.eza(opts),
 			sorter = conf.file_sorter(opts),
 		})
 		:find()
