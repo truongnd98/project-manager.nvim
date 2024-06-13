@@ -4,5 +4,6 @@ return require("telescope").register_extension({
 	end,
 	exports = {
 		find_dirs = require("project-manager").find_dirs,
+		live_find_dirs = require("project-manager").live_find_dirs,
 	},
 })
