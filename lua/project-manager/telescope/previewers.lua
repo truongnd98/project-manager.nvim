@@ -98,7 +98,7 @@ M.eza = function(opts)
 				return
 			end
 
-			local cmd = { "eza", "--tree", "--icons", "always", "--", utils.path_expand(dirname) }
+			local cmd = { "eza", "--tree", "--icons", "always", "--level", "3", utils.path_expand(dirname) }
 
 			job_maker(cmd, self.state.bufnr, {
 				value = entry.value,
