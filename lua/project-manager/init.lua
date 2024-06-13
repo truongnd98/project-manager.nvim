@@ -65,6 +65,17 @@ local DEFAULT_OPTS = {
 			bg = "",
 		},
 	},
+	fd = {
+		default_exclude = {
+			"node_modules",
+			"*/ios/Runner*",
+			"*/macos/Runner*",
+			"*/ios/Pods*",
+			"*/macos/Pods*",
+			"*/build/ios*",
+			"*/build/macos*",
+		},
+	},
 }
 
 local function merge_options(conf)
@@ -97,6 +108,10 @@ end
 
 M.get_hls = function()
 	return M.config.highlights
+end
+
+M.get_config = function(key)
+	return M.config[key]
 end
 
 local escape_char_map = {
@@ -167,6 +182,20 @@ M.find_dirs = function(opts)
 	if opts.cwd then
 		opts.cwd = utils.path_expand(opts.cwd)
 	end
+	if opts.exclude then
+		if type(opts.exclude) == "table" then
+			for _, exclude in ipairs(opts.exclude) do
+				vim.list_extend(find_command, { "--exclude", exclude })
+			end
+		else
+			vim.list_extend(find_command, { "--exclude", opts.exclude })
+		end
+	else
+		local default_excludes = M.get_config("fd").default_exclude
+		for _, exclude in ipairs(default_excludes) do
+			vim.list_extend(find_command, { "--exclude", exclude })
+		end
+	end
 
 	opts.__highlight = M.get_hls()
 	opts.__icons = M.get_icons()
@@ -231,9 +260,22 @@ M.live_find_dirs = function(opts)
 	if search_dirs then
 		vim.list_extend(find_command, search_dirs)
 	end
-
 	if opts.cwd then
 		opts.cwd = utils.path_expand(opts.cwd)
+	end
+	if opts.exclude then
+		if type(opts.exclude) == "table" then
+			for _, exclude in ipairs(opts.exclude) do
+				vim.list_extend(find_command, { "--exclude", exclude })
+			end
+		else
+			vim.list_extend(find_command, { "--exclude", opts.exclude })
+		end
+	else
+		local default_excludes = M.get_config("fd").default_exclude
+		for _, exclude in ipairs(default_excludes) do
+			vim.list_extend(find_command, { "--exclude", exclude })
+		end
 	end
 
 	opts.__highlight = M.get_hls()
