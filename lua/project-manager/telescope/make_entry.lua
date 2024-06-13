@@ -1,9 +1,6 @@
-local Job = require("plenary.job")
 local Path = require("plenary.path")
 
 local utils = require("telescope.utils")
-
-local state = require("project-manager.telescope.state")
 
 local M = {}
 
@@ -47,33 +44,8 @@ do
 				return display, path_style
 			end
 
-			local path = Path:new({ cwd, entry.value }):absolute()
-
-			if not state.get_entry_by_path(path) then
-				Job:new({
-					command = "fd",
-					args = {
-						"-q",
-						"--full-path",
-						path,
-					},
-					env = opts.env,
-					cwd = opts.cwd,
-					on_exit = vim.schedule_wrap(function(_, exit_code)
-						state.set_entry({ path = path, type = "directory", is_empty = exit_code == 1 })
-					end),
-				}):start()
-			end
-
 			icon = opts.__icons.folder.default
 			hl_group = opts.__highlight.finder_folder_icon_default.name
-
-			local entry_cached = state.get_entry_by_path(path)
-
-			if entry_cached and entry_cached.is_empty then
-				icon = opts.__icons.folder.empty
-				hl_group = opts.__highlight.finder_folder_icon_empty.name
-			end
 
 			display = icon .. " " .. display
 
