@@ -30,7 +30,16 @@ M.fzy_dir_sorter = function(opts)
 
 		highlighter = function(_, prompt, display)
 			prompt = string.gsub(prompt, "^/", "")
-			return fzy.positions(prompt, display)
+			local positions = fzy.positions(prompt, display)
+
+			local hls = {}
+			local highlight = opts.__highlight.finder_filter_matching.name or "TelescopeMatching"
+
+			for _, value in ipairs(positions) do
+				table.insert(hls, { start = value, highlight = highlight })
+			end
+
+			return hls
 		end,
 	})
 end

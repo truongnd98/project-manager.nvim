@@ -3,7 +3,7 @@ local pickers = require("telescope.pickers")
 local utils = require("telescope.utils")
 
 local custom_previewers = require("project-manager.telescope.previewers")
-local custom_make_entry = require("project-manager.telescope.mak_entry")
+local custom_make_entry = require("project-manager.telescope.make_entry")
 local custom_sorters = require("project-manager.telescope.sorters")
 local custom_utils = require("project-manager.telescope.utils")
 
@@ -12,39 +12,41 @@ local M = {}
 local DEFAULT_OPTS = {
 	icons = {
 		folder = {
-			default = "",
+			default = "",
 			open = "",
-			empty = "",
+			empty = "",
 			empty_open = "",
 		},
 	},
-	highlight = {
+	highlights = {
 		finder_folder_icon_default = {
 			name = "PMFinderFolderIconDefault",
-			fg = "#1ABC9C",
+			fg = "#7AA2F7",
 			bg = "",
-			reverse = true,
 		},
 		finder_folder_icon_empty = {
 			name = "PMFinderFolderIconEmpty",
-			fg = "#75D6C3",
+			fg = "#7AA2F7",
 			bg = "",
-			reverse = true,
 		},
 		finder_folder_path = {
 			name = "PMFinderFolderPath",
-			fg = "#7AA2F7",
+			fg = "",
 			bg = "",
-			reverse = true,
+		},
+		finder_filter_matching = {
+			name = "PMFinderFilterMatching",
+			fg = "#E0AF68",
+			bg = "",
 		},
 		previewer_folder_icon = {
 			name = "PMPreviewerFolderIcon",
-			fg = "#1ABC9C",
+			fg = "#7AA2F7",
 			bg = "",
 		},
 		previewer_folder_name = {
 			name = "PMPreviewerFolderName",
-			fg = "#1ABC9C",
+			fg = "#7AA2F7",
 			bg = "",
 		},
 		previewer_file_name = {
@@ -76,7 +78,7 @@ end
 local function setup_hl(hls)
 	local set_hl = vim.api.nvim_set_hl
 	for _, v in pairs(hls) do
-		set_hl(0, v.name, v)
+		set_hl(0, v.name, { fg = v.fg, bg = v.bg, gui = v.gui, sp = v.sp, reverse = v.reverse })
 	end
 end
 
@@ -86,7 +88,7 @@ M.setup = function(conf)
 	local opts = merge_options(conf)
 	M.config = opts
 
-	setup_hl(M.config.highlight)
+	setup_hl(M.config.highlights)
 end
 
 M.get_icons = function()
@@ -94,7 +96,7 @@ M.get_icons = function()
 end
 
 M.get_hls = function()
-	return M.config.highlight
+	return M.config.highlights
 end
 
 local escape_char_map = {
@@ -166,7 +168,10 @@ M.find_dirs = function(opts)
 		opts.cwd = utils.path_expand(opts.cwd)
 	end
 
-	-- opts.entry_maker = opts.entry_maker or custom_make_entry.gen_from_dir(opts)
+	opts.__highlight = M.get_hls()
+	opts.__icons = M.get_icons()
+
+	opts.entry_maker = opts.entry_maker or custom_make_entry.gen_from_dir(opts)
 
 	return pickers
 		.new(opts, {
@@ -230,6 +235,9 @@ M.live_find_dirs = function(opts)
 	if opts.cwd then
 		opts.cwd = utils.path_expand(opts.cwd)
 	end
+
+	opts.__highlight = M.get_hls()
+	opts.__icons = M.get_icons()
 
 	opts.entry_maker = opts.entry_maker or custom_make_entry.gen_from_dir(opts)
 

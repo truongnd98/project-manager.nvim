@@ -7,7 +7,7 @@ local from_entry = require("telescope.from_entry")
 
 local devicons = require("nvim-web-devicons")
 
-local pm = require("project-manager.init")
+-- local pm = require("project-manager.init")
 
 local M = {}
 
@@ -141,7 +141,7 @@ M.eza = function(opts)
 					content_render[1] = content[1]
 					table.insert(
 						highlights,
-						{ bufnr, -1, pm.get_hls().previewer_tree_root_path.name, 0, 0, #content_render[1] }
+						{ bufnr, -1, opts.__highlight.previewer_tree_root_path.name, 0, 0, #content_render[1] }
 					)
 
 					for i = 2, #content do
@@ -163,7 +163,7 @@ M.eza = function(opts)
 								table.insert(highlights, {
 									bufnr,
 									-1,
-									pm.get_hls().previewer_tree_indent.name,
+									opts.__highlight.previewer_tree_indent.name,
 									i - 1,
 									link_start - 1,
 									link_end,
@@ -176,7 +176,7 @@ M.eza = function(opts)
 									table.insert(highlights, {
 										bufnr,
 										-1,
-										pm.get_hls().previewer_folder_icon.name,
+										opts.__highlight.previewer_folder_icon.name,
 										i - 1,
 										icon_start - 1,
 										icon_end - 1,
@@ -184,7 +184,7 @@ M.eza = function(opts)
 									table.insert(highlights, {
 										bufnr,
 										-1,
-										pm.get_hls().previewer_folder_name.name,
+										opts.__highlight.previewer_folder_name.name,
 										i - 1,
 										name_start - 1,
 										name_end,
@@ -214,7 +214,7 @@ M.eza = function(opts)
 									table.insert(highlights, {
 										bufnr,
 										-1,
-										pm.get_hls().previewer_file_name.name,
+										opts.__highlight.previewer_file_name.name,
 										i - 1,
 										name_start - 1,
 										name_end - 1,

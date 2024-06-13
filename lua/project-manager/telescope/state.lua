@@ -1,3 +1,5 @@
+local utils = require("telescope.utils")
+
 ProjectManagerState = ProjectManagerState or {}
 ProjectManagerState.entry_state = {}
 

@@ -3,7 +3,6 @@ local Path = require("plenary.path")
 
 local utils = require("telescope.utils")
 
-local pm = require("project-manager")
 local state = require("project-manager.telescope.state")
 
 local M = {}
@@ -42,7 +41,7 @@ do
 		mt_dir_entry.display = function(entry)
 			local hl_group, icon
 			local display, path_style = utils.transform_path(opts, entry.value)
-			path_style = { { { 0, #icon + 1 }, pm.get_hls().finder_folder_path.name } }
+			path_style = { { { 0, #display + 1 }, opts.__highlight.finder_folder_path.name } }
 
 			if disable_devicons then
 				return display, path_style
@@ -61,18 +60,19 @@ do
 					env = opts.env,
 					cwd = opts.cwd,
 					on_exit = vim.schedule_wrap(function(_, exit_code)
-						state.set_entry({ path, type = "directory", is_empty = exit_code == 1 })
+						state.set_entry({ path = path, type = "directory", is_empty = exit_code == 1 })
 					end),
 				}):start()
 			end
 
-			local is_empty = state.get_entry_by_path(path).is_empty
+			icon = opts.__icons.folder.default
+			hl_group = opts.__highlight.finder_folder_icon_default.name
 
-			icon = pm.get_icons().folder.default
-			hl_group = pm.get_hls().finder_folder_icon_default.name
-			if is_empty then
-				icon = pm.get_icons().folder.empty
-				hl_group = pm.get_hls().finder_folder_icon_empty.name
+			local entry_cached = state.get_entry_by_path(path)
+
+			if entry_cached and entry_cached.is_empty then
+				icon = opts.__icons.folder.empty
+				hl_group = opts.__highlight.finder_folder_icon_empty.name
 			end
 
 			display = icon .. " " .. display
