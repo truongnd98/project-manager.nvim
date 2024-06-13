@@ -7,7 +7,7 @@ local from_entry = require("telescope.from_entry")
 
 local devicons = require("nvim-web-devicons")
 
-local pm = require("project-manager")
+local pm = require("project-manager.init")
 
 local M = {}
 
