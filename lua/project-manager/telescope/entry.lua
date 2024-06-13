@@ -1,0 +1,24 @@
+-- local Entry = {}
+-- Entry.__index = Entry
+--
+-- function Entry:new(opts)
+-- 	opts = opts or {}
+--
+-- 	return setmetatable({
+-- 		path = opts.path,
+-- 		type = opts.type,
+-- 		has_children = opts.has_children,
+-- 	}, Entry)
+-- end
+--
+-- function Entry:new(opts)
+-- 	opts = opts or {}
+--
+-- 	return setmetatable({
+-- 		path = opts.path,
+-- 		type = opts.type,
+-- 		has_children = opts.has_children,
+-- 	}, Entry)
+-- end
+--
+-- return Entry

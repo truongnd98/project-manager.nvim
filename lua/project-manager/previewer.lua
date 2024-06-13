@@ -28,8 +28,8 @@ M.eza = function(opts)
 			end
 
 			if not vim.fn.executable("eza") then
-				utils.notify("previewer.eza", {
-					msg = "You need to install either `eza` or `ls`",
+				utils.notify("project-manager.previewer.eza", {
+					msg = "You need to install either eza",
 					level = "ERROR",
 				})
 				return
@@ -45,8 +45,8 @@ M.eza = function(opts)
 			end
 
 			if not vim.fn.executable("eza") then
-				utils.notify("previewer.eza", {
-					msg = "You need to install either `eza` or `ls`",
+				utils.notify("project-manager.previewer.eza", {
+					msg = "You need to install eza",
 					level = "ERROR",
 				})
 				return
