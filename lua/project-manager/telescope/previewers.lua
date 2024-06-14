@@ -98,7 +98,25 @@ M.eza = function(opts)
 				return
 			end
 
-			local cmd = { "eza", "--all", "--tree", "--icons", "always", "--level", "3", utils.path_expand(dirname) }
+			local cmd = {
+				"eza",
+				"--all",
+				"--tree",
+				"--icons",
+				"always",
+				"--level",
+				"3",
+			}
+
+			if opts.__eza_exclude then
+				if type(opts.__eza_exclude) == "string" then
+					vim.list_extend(cmd, { "--ignore-glob", opts.__eza_exclude })
+				elseif type(opts.__eza_exclude) == "table" then
+					vim.list_extend(cmd, { "--ignore-glob", table.concat(opts.__eza_exclude, "|") })
+				end
+			end
+
+			vim.list_extend(cmd, { utils.path_expand(dirname) })
 
 			job_maker(cmd, self.state.bufnr, {
 				value = entry.value,

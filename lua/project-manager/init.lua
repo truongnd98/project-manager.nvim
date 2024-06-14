@@ -69,12 +69,12 @@ local DEFAULT_OPTS = {
 		default_exclude = {
 			"node_modules",
 			".git",
-			"*/ios/Runner*",
-			"*/macos/Runner*",
-			"*/ios/Pods*",
-			"*/macos/Pods*",
-			"*/build/ios*",
-			"*/build/macos*",
+		},
+	},
+	eza = {
+		default_exclude = {
+			"node_modules",
+			".git",
 		},
 	},
 }
@@ -200,6 +200,7 @@ M.find_dirs = function(opts)
 
 	opts.__highlight = M.get_hls()
 	opts.__icons = M.get_icons()
+	opts.__eza_exclude = M.get_config("eza").default_exclude
 
 	opts.entry_maker = opts.entry_maker or custom_make_entry.gen_from_dir(opts)
 
@@ -209,7 +210,7 @@ M.find_dirs = function(opts)
 			finder = finders.new_oneshot_job(find_command, opts),
 			previewer = custom_previewers.eza(opts),
 			sorter = custom_sorters.fzy_dir_sorter(opts),
-			debounce = 250,
+			debounce = 150,
 		})
 		:find()
 end
@@ -281,6 +282,7 @@ M.live_find_dirs = function(opts)
 
 	opts.__highlight = M.get_hls()
 	opts.__icons = M.get_icons()
+	opts.__eza_exclude = M.get_config("eza").default_exclude
 
 	opts.entry_maker = opts.entry_maker or custom_make_entry.gen_from_dir(opts)
 
@@ -308,7 +310,7 @@ M.live_find_dirs = function(opts)
 			end, opts.entry_maker, _, opts.cwd),
 			previewer = custom_previewers.eza(opts),
 			sorter = custom_sorters.fzy_dir_sorter(opts),
-			debounce = 250,
+			debounce = 150,
 		})
 		:find()
 end
