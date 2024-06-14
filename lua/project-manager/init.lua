@@ -68,6 +68,7 @@ local DEFAULT_OPTS = {
 	fd = {
 		default_exclude = {
 			"node_modules",
+			".git",
 			"*/ios/Runner*",
 			"*/macos/Runner*",
 			"*/ios/Pods*",
