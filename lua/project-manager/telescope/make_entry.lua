@@ -1,6 +1,6 @@
 local Path = require("plenary.path")
 
-local utils = require("telescope.utils")
+local t_utils = require("telescope.utils")
 
 local M = {}
 
@@ -28,7 +28,7 @@ do
 	M.gen_from_dir = function(opts)
 		opts = opts or {}
 
-		local cwd = utils.path_expand(opts.cwd or vim.loop.cwd())
+		local cwd = t_utils.path_expand(opts.cwd or vim.loop.cwd())
 
 		local disable_devicons = opts.disable_devicons
 
@@ -37,7 +37,7 @@ do
 		mt_dir_entry.cwd = cwd
 		mt_dir_entry.display = function(entry)
 			local hl_group, icon
-			local display, path_style = utils.transform_path(opts, entry.value)
+			local display, path_style = t_utils.transform_path(opts, entry.value)
 			path_style = { { { 0, #display + 1 }, opts.__highlight.finder_folder_path.name } }
 
 			if disable_devicons then
@@ -51,7 +51,7 @@ do
 
 			if hl_group then
 				local style = { { { 0, #icon + 1 }, hl_group } }
-				style = utils.merge_styles(style, path_style, #icon + 1)
+				style = t_utils.merge_styles(style, path_style, #icon + 1)
 				return display, style
 			else
 				return display, path_style

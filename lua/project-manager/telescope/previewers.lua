@@ -1,13 +1,11 @@
 local Job = require("plenary.job")
 local Path = require("plenary.path")
 
-local previewers = require("telescope.previewers")
-local utils = require("telescope.utils")
-local from_entry = require("telescope.from_entry")
+local t_previewers = require("telescope.previewers")
+local t_utils = require("telescope.utils")
+local t_from_entry = require("telescope.from_entry")
 
 local devicons = require("nvim-web-devicons")
-
--- local pm = require("project-manager.init")
 
 local M = {}
 
@@ -74,24 +72,24 @@ M.eza = function(opts)
 
 	local cwd = opts.cwd or vim.loop.cwd()
 
-	return previewers.new_buffer_previewer({
+	return t_previewers.new_buffer_previewer({
 		title = "Eza Preview",
 		dyn_title = function(_, entry)
-			return Path:new(from_entry.path(entry, false, false)):normalize(cwd)
+			return Path:new(t_from_entry.path(entry, false, false)):normalize(cwd)
 		end,
 
 		get_buffer_by_name = function(_, entry)
-			return from_entry.path(entry, false, false)
+			return t_from_entry.path(entry, false, false)
 		end,
 
 		define_preview = function(self, entry)
-			local dirname = from_entry.path(entry, true, false)
+			local dirname = t_from_entry.path(entry, true, false)
 			if dirname == nil or dirname == "" then
 				return
 			end
 
 			if not vim.fn.executable("eza") then
-				utils.notify("project-manager.previewer.eza", {
+				t_utils.notify("project-manager.telescope.previewers.eza", {
 					msg = "You need to install eza",
 					level = "ERROR",
 				})
@@ -116,7 +114,7 @@ M.eza = function(opts)
 				end
 			end
 
-			vim.list_extend(cmd, { utils.path_expand(dirname) })
+			vim.list_extend(cmd, { t_utils.path_expand(dirname) })
 
 			job_maker(cmd, self.state.bufnr, {
 				value = entry.value,

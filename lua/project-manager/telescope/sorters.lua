@@ -1,6 +1,6 @@
-local sorters = require("telescope.sorters")
+local t_sorters = require("telescope.sorters")
 
-local utils = require("project-manager.telescope.utils")
+local pm_utils = require("project-manager.telescope.utils")
 
 local M = {}
 
@@ -9,11 +9,11 @@ M.fzy_dir_sorter = function(opts)
 	local fzy = opts.fzy_mod or require("telescope.algos.fzy")
 	local OFFSET = -fzy.get_score_floor()
 
-	return sorters.Sorter:new({
+	return t_sorters.Sorter:new({
 		discard = true,
 
 		scoring_function = function(_, prompt, line)
-			prompt = utils.format_prompt(prompt)
+			prompt = pm_utils.format_prompt(prompt)
 			-- Check for actual matches before running the scoring alogrithm.
 			if not fzy.has_match(prompt, line) then
 				return -1
