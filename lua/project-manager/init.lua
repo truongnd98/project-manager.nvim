@@ -3,6 +3,7 @@ local pickers = require("telescope.pickers")
 local utils = require("telescope.utils")
 local t_make_entry = require("telescope.make_entry")
 local t_conf = require("telescope.config").values
+local telescope_builtin = require("telescope.builtin")
 
 local custom_previewers = require("project-manager.telescope.previewers")
 local custom_make_entry = require("project-manager.telescope.make_entry")
@@ -38,7 +39,7 @@ local DEFAULT_OPTS = {
 		},
 		finder_filter_matching = {
 			name = "PMFinderFilterMatching",
-			fg = "#E0AF68",
+			fg = "#FF6E18",
 			bg = "",
 		},
 		previewer_folder_icon = {
@@ -74,6 +75,12 @@ local DEFAULT_OPTS = {
 		},
 	},
 	eza = {
+		default_exclude = {
+			"node_modules",
+			".git",
+		},
+	},
+	rg = {
 		default_exclude = {
 			"node_modules",
 			".git",
@@ -217,6 +224,102 @@ M.find_files = function(opts)
 			debounce = 150,
 		})
 		:find()
+end
+
+M.live_grep = function(opts)
+	opts.vimgrep_arguments = {
+		"rg",
+		"--color=never",
+		"--no-heading",
+		"--with-filename",
+		"--line-number",
+		"--column",
+		"--smart-case",
+	}
+
+	local hidden = opts.hidden
+	local no_ignore = opts.no_ignore
+
+	if hidden then
+		table.insert(opts.vimgrep_arguments, "--hidden")
+	end
+
+	if no_ignore then
+		table.insert(opts.vimgrep_arguments, "--no-ignore")
+	end
+
+	if opts.exclude then
+		if type(opts.exclude) == "table" then
+			for _, exclude in ipairs(opts.exclude) do
+				table.insert(opts.vimgrep_arguments, "--glob")
+				table.insert(opts.vimgrep_arguments, "!" .. exclude)
+			end
+		elseif type(opts.exclude) == "string" then
+			table.insert(opts.vimgrep_arguments, "--glob")
+			table.insert(opts.vimgrep_arguments, "!" .. opts.exclude)
+		end
+	else
+		local default_excludes = M.get_config("rg").default_exclude
+		if type(default_excludes) == "table" then
+			for _, exclude in ipairs(default_excludes) do
+				table.insert(opts.vimgrep_arguments, "--glob")
+				table.insert(opts.vimgrep_arguments, "!" .. exclude)
+			end
+		elseif type(default_excludes) == "string" then
+			table.insert(opts.vimgrep_arguments, "--glob")
+			table.insert(opts.vimgrep_arguments, "!" .. default_excludes)
+		end
+	end
+
+	return telescope_builtin.live_grep(opts)
+end
+
+M.grep_string = function(opts)
+	opts.vimgrep_arguments = {
+		"rg",
+		"--color=never",
+		"--no-heading",
+		"--with-filename",
+		"--line-number",
+		"--column",
+		"--smart-case",
+	}
+
+	local hidden = opts.hidden
+	local no_ignore = opts.no_ignore
+
+	if hidden then
+		table.insert(opts.vimgrep_arguments, "--hidden")
+	end
+
+	if no_ignore then
+		table.insert(opts.vimgrep_arguments, "--no-ignore")
+	end
+
+	if opts.exclude then
+		if type(opts.exclude) == "table" then
+			for _, exclude in ipairs(opts.exclude) do
+				table.insert(opts.vimgrep_arguments, "--glob")
+				table.insert(opts.vimgrep_arguments, "!" .. exclude)
+			end
+		elseif type(opts.exclude) == "string" then
+			table.insert(opts.vimgrep_arguments, "--glob")
+			table.insert(opts.vimgrep_arguments, "!" .. opts.exclude)
+		end
+	else
+		local default_excludes = M.get_config("rg").default_exclude
+		if type(default_excludes) == "table" then
+			for _, exclude in ipairs(default_excludes) do
+				table.insert(opts.vimgrep_arguments, "--glob")
+				table.insert(opts.vimgrep_arguments, "!" .. exclude)
+			end
+		elseif type(default_excludes) == "string" then
+			table.insert(opts.vimgrep_arguments, "--glob")
+			table.insert(opts.vimgrep_arguments, "!" .. default_excludes)
+		end
+	end
+
+	return telescope_builtin.grep_string(opts)
 end
 
 M.find_dirs = function(opts)
