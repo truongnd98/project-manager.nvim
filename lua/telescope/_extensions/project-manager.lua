@@ -11,5 +11,7 @@ return require("telescope").register_extension({
 		live_find_dirs = pm_t.live_find_dirs,
 		grep_string = pm_t.grep_string,
 		find_projects = pm_t.find_projects,
+		find_and_open_project = pm_t.find_and_open_project,
+		live_find_and_open_project = pm_t.live_find_and_open_project,
 	},
 })

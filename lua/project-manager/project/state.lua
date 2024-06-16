@@ -31,4 +31,9 @@ M.persist = function()
 	vim.fn.writefile({ vim.fn.json_encode(ProjectManagerState.project_state) }, p_state_path)
 end
 
+M.remove_project_from_path = function(path)
+	ProjectManagerState.project_state.projects[path] = nil
+	M.persist()
+end
+
 return M

@@ -11,6 +11,7 @@ local pm_t_make_entry = require("project-manager.telescope.make_entry")
 local pm_t_sorters = require("project-manager.telescope.sorters")
 local pm_t_utils = require("project-manager.telescope.utils")
 local pm_state = require("project-manager.project.state")
+local pm_actions = require("project-manager.telescope.actions")
 
 local M = {}
 
@@ -403,7 +404,7 @@ M.find_projects = function(opts)
 	local projects = pm_state.get_project_list()
 	local project_list = {}
 	for _, project in pairs(projects) do
-		table.insert(project_list, project.path)
+		table.insert(project_list, project.entry.value)
 	end
 
 	opts.__highlight = pm.get_hls()
@@ -421,8 +422,30 @@ M.find_projects = function(opts)
 			}),
 			previewer = pm_t_previewers.eza(opts),
 			sorter = pm_t_sorters.fzy_dir_sorter(opts),
+			attach_mappings = function(_, map)
+				map("n", "d", pm_actions.remove_project)
+				return true
+			end,
 		})
 		:find()
+end
+
+M.find_and_open_project = function(opts)
+	opts.attach_mappings = function(_, map)
+		map("n", "<CR>", pm_actions.select_project)
+		map("i", "<CR>", pm_actions.select_project)
+		return true
+	end
+	return M.find_dirs(opts)
+end
+
+M.live_find_and_open_project = function(opts)
+	opts.attach_mappings = function(_, map)
+		map("n", "<CR>", pm_actions.select_project)
+		map("i", "<CR>", pm_actions.select_project)
+		return true
+	end
+	return M.live_find_dirs(opts)
 end
 
 return M
