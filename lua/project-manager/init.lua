@@ -89,7 +89,16 @@ end
 local function setup_hl(hls)
 	local set_hl = vim.api.nvim_set_hl
 	for _, v in pairs(hls) do
-		set_hl(0, v.name, { fg = v.fg, bg = v.bg, gui = v.gui, sp = v.sp, reverse = v.reverse })
+		set_hl(0, v.name, {
+			fg = v.fg,
+			bg = v.bg,
+			sp = v.sp,
+			reverse = v.reverse,
+			bold = v.bold,
+			italic = v.italic,
+			undercurl = v.undercurl,
+			strikethrough = v.strikethrough,
+		})
 	end
 end
 
