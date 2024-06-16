@@ -10,6 +10,7 @@ local pm_t_previewers = require("project-manager.telescope.previewers")
 local pm_t_make_entry = require("project-manager.telescope.make_entry")
 local pm_t_sorters = require("project-manager.telescope.sorters")
 local pm_t_utils = require("project-manager.telescope.utils")
+local pm_state = require("project-manager.project.state")
 
 local M = {}
 
@@ -394,6 +395,32 @@ M.live_find_dirs = function(opts)
 			previewer = pm_t_previewers.eza(opts),
 			sorter = pm_t_sorters.fzy_dir_sorter(opts),
 			debounce = 150,
+		})
+		:find()
+end
+
+M.find_projects = function(opts)
+	local projects = pm_state.get_project_list()
+	local project_list = {}
+	for _, project in pairs(projects) do
+		table.insert(project_list, project.path)
+	end
+
+	opts.__highlight = pm.get_hls()
+	opts.__icons = pm.get_icons()
+	opts.__eza_exclude = pm.get_config("eza").default_exclude
+
+	opts.entry_maker = opts.entry_maker or pm_t_make_entry.gen_from_dir(opts)
+	return t_pickers
+		.new(opts, {
+			prompt_title = "Find Projects",
+			__locations_input = true,
+			finder = t_finders.new_table({
+				results = project_list,
+				entry_maker = opts.entry_maker,
+			}),
+			previewer = pm_t_previewers.eza(opts),
+			sorter = pm_t_sorters.fzy_dir_sorter(opts),
 		})
 		:find()
 end

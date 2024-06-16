@@ -1,3 +1,5 @@
+local pm_state = require("project-manager.project.state")
+
 local M = {}
 
 local DEFAULT_OPTS = {
@@ -98,6 +100,9 @@ M.setup = function(conf)
 	M.config = opts
 
 	setup_hl(M.config.highlights)
+
+	-- Load project state from $HOME/.local/state/nvim/project-manager.nvim/state.json
+	pm_state.load()
 end
 
 M.get_icons = function()
