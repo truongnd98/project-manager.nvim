@@ -47,7 +47,7 @@ do
 			icon = opts.__icons.folder.default
 			hl_group = opts.__highlight.finder_folder_icon_default.name
 
-			display = icon .. " " .. display
+			display = icon .. "  " .. display
 
 			if hl_group then
 				local style = { { { 0, #icon + 1 }, hl_group } }
