@@ -308,7 +308,7 @@ M.live_find_dirs = function(opts)
 			end
 			return opts.find_command
 		elseif 1 == vim.fn.executable("fd") then
-			return { "fd", "--type", "d", "--color", "never", "--regex", "--full-path" }
+			return { "fd", "--type", "d", "--color", "never", "--regex", "--full-path", "--max-results", "100" }
 		end
 	end)()
 
