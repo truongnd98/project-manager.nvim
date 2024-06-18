@@ -111,7 +111,7 @@ M.setup = function(conf)
 	setup_hl(M.config.highlights)
 
 	-- Load project state from $HOME/.local/state/nvim/project-manager.nvim/state.json
-	pm_state.load()
+	-- pm_state.load()
 end
 
 M.get_icons = function()

@@ -18,10 +18,12 @@ M.load = function()
 end
 
 M.get_project_list = function()
+	M.load()
 	return ProjectManagerState.project_state.projects
 end
 
 M.add_project = function(project)
+	M.load()
 	ProjectManagerState.project_state.projects[project.path] = project
 	M.persist()
 end
@@ -32,6 +34,7 @@ M.persist = function()
 end
 
 M.remove_project_from_path = function(path)
+	M.load()
 	ProjectManagerState.project_state.projects[path] = nil
 	M.persist()
 end
