@@ -11,8 +11,8 @@ M.select_project = function(prompt_bufnr)
 		return
 	end
 
-	local confirm = vim.fn.input(string.format('Open project "%s"?\n' .. "y/N: ", entry.value))
-	if confirm == "y" then
+	local choice = vim.fn.confirm(string.format('Open project "%s"?', entry.value), "&Yes\n&No")
+	if choice == 1 then
 		pm_state.add_project({
 			path = entry.cwd .. "/" .. entry.value,
 			entry = { cwd = entry.cwd, value = entry.value },
@@ -27,8 +27,8 @@ M.remove_project = function(prompt_bufnr)
 		return
 	end
 
-	local confirm = vim.fn.input(string.format('Remove project "%s"?\n' .. "y/N: ", entry.value))
-	if confirm == "y" then
+	local choice = vim.fn.confirm(string.format('Remove project "%s"?', entry.value), "&Yes\n&No")
+	if choice == 1 then
 		pm_state.remove_project_from_path(entry.cwd .. "/" .. entry.value)
 	end
 end
