@@ -13,11 +13,13 @@ M.select_project = function(prompt_bufnr)
 
 	local choice = vim.fn.confirm(string.format('Open project "%s"?', entry.value), "&Yes\n&No")
 	if choice == 1 then
+		local path = entry.cwd .. "/" .. entry.value
 		pm_state.add_project({
-			path = entry.cwd .. "/" .. entry.value,
+			path = path,
 			entry = { cwd = entry.cwd, value = entry.value },
 		})
 		t_actions.select_default(prompt_bufnr)
+		vim.fn.chdir(path)
 	end
 end
 
