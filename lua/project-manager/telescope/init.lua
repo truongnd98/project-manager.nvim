@@ -423,6 +423,8 @@ M.find_projects = function(opts)
 			previewer = pm_t_previewers.eza(opts),
 			sorter = pm_t_sorters.fzy_dir_sorter(opts),
 			attach_mappings = function(_, map)
+				map("n", "<CR>", pm_actions.select_project)
+				map("i", "<CR>", pm_actions.select_project)
 				map("n", "d", pm_actions.remove_project)
 				return true
 			end,
