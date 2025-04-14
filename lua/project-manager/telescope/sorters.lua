@@ -4,44 +4,183 @@ local pm_utils = require("project-manager.telescope.utils")
 
 local M = {}
 
-M.fzy_dir_sorter = function(opts)
-	opts = opts or {}
-	local fzy = opts.fzy_mod or require("telescope.algos.fzy")
-	local OFFSET = -fzy.get_score_floor()
+function M.fzy_dir_sorter(opts)
+  opts = opts or {}
+  local fzy = opts.fzy_mod or require("telescope.algos.fzy")
+  local OFFSET = -fzy.get_score_floor()
 
-	return t_sorters.Sorter:new({
-		discard = true,
+  return t_sorters.Sorter:new({
+    discard = true,
 
-		scoring_function = function(_, prompt, line)
-			prompt = pm_utils.format_prompt(prompt)
-			-- Check for actual matches before running the scoring alogrithm.
-			if not fzy.has_match(prompt, line) then
-				return -1
-			end
+    scoring_function = function(_, prompt, line)
+      prompt = pm_utils.format_prompt(prompt)
+      -- Check for actual matches before running the scoring alogrithm.
+      if not fzy.has_match(prompt, line) then
+        return -1
+      end
 
-			local fzy_score = fzy.score(prompt, line)
+      local fzy_score = fzy.score(prompt, line)
 
-			if fzy_score == fzy.get_score_min() then
-				return 1
-			end
+      if fzy_score == fzy.get_score_min() then
+        return 1
+      end
 
-			return 1 / (fzy_score + OFFSET)
-		end,
+      return 1 / (fzy_score + OFFSET)
+    end,
 
-		highlighter = function(_, prompt, display)
-			prompt = string.gsub(prompt, "^/", "")
-			local positions = fzy.positions(prompt, display)
+    highlighter = function(_, prompt, display)
+      prompt = string.gsub(prompt, "^/", "")
+      local positions = fzy.positions(prompt, display)
 
-			local hls = {}
-			local highlight = opts.__highlight.finder_filter_matching.name or "TelescopeMatching"
+      local hls = {}
+      local highlight = opts.__highlight.finder_filter_matching.name or "TelescopeMatching"
 
-			for _, value in ipairs(positions) do
-				table.insert(hls, { start = value, highlight = highlight })
-			end
+      for _, value in ipairs(positions) do
+        table.insert(hls, { start = value, highlight = highlight })
+      end
 
-			return hls
-		end,
-	})
+      return hls
+    end,
+  })
+end
+
+local function getS(s)
+  return string.match(s, "[#*]")
+end
+
+local function getC(s)
+  return string.match(s, "[si]")
+end
+
+local function getFlagOpt(s)
+  local flag_patterns = {
+    "^#>",
+    "^*>",
+    "^s>",
+    "^i>",
+    "^#s>",
+    "^#i>",
+    "^*s>",
+    "^*i>",
+  }
+
+  local opt = {}
+
+  for _, flag_pattern in ipairs(flag_patterns) do
+    local flag = string.match(s, flag_pattern)
+
+    if flag then
+      opt = {
+        f = flag,
+        s = getS(flag),
+        c = getC(flag),
+        p = string.gsub(s, "^" .. flag, "")
+      }
+      break
+    end
+  end
+
+  return opt
+end
+
+function M.sf_sorter(opts)
+  opts = opts or {}
+  local sf = require("project-manager.telescope.algos_sf")
+  local fzy = opts.fzy_mod or require("project-manager.telescope.algos_fzy")
+  local OFFSET = -fzy.get_score_floor()
+
+  return t_sorters.Sorter:new({
+    discard = false,
+
+    scoring_function = function(sorter, prompt, line)
+      prompt = pm_utils.format_prompt(prompt)
+
+      if not sorter.state.flag then
+        sorter.state.flag = {}
+      end
+
+      local flagOpt = sorter.state.flag
+      local preFlag = flagOpt.f
+
+      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, true) then
+        flagOpt = getFlagOpt(prompt)
+        sorter.state.flag = flagOpt
+      end
+
+      if flagOpt.s == "#" then
+        if not sf.has_match(flagOpt.c, flagOpt.p, line) then
+          return -1
+        end
+
+        return sf.score()
+      end
+
+      if flagOpt.s == "*" then
+        if not fzy.has_match(flagOpt.c, flagOpt.p, line) then
+          return -1
+        end
+
+        local fzy_score = fzy.score(flagOpt.c, flagOpt.p, line)
+
+        if fzy_score == fzy.get_score_min() then
+          return 1
+        end
+
+        return 1 / (fzy_score + OFFSET)
+      end
+
+      if not fzy.has_match(nil, prompt, line) then
+        return -1
+      end
+
+      local fzy_score = fzy.score(nil, prompt, line)
+
+      if fzy_score == fzy.get_score_min() then
+        return 1
+      end
+
+      return 1 / (fzy_score + OFFSET)
+    end,
+
+    highlighter = function (sorter, prompt, display)
+      prompt = pm_utils.format_prompt(prompt)
+
+      local positions = {}
+
+      if not sorter.state.flag then
+        sorter.state.flag = {}
+      end
+
+      local flagOpt = sorter.state.flag
+      local preFlag = flagOpt.f
+
+      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, true) then
+        flagOpt = getFlagOpt(prompt)
+        sorter.state.flag = flagOpt
+      end
+
+      if flagOpt.s == "#" then
+        positions = sf.positions(flagOpt.c, flagOpt.p, display)
+      end
+
+      if flagOpt.s == "*" then
+        positions = fzy.positions(flagOpt.c, flagOpt.p, display)
+      end
+
+      if not flagOpt.s then
+        positions = fzy.positions(nil, prompt, display)
+      end
+
+      local hls = {}
+      local highlight = opts.__highlight.finder_filter_matching.name or "TelescopeMatching"
+
+      for _, value in ipairs(positions) do
+        table.insert(hls, { start = value, highlight = highlight })
+      end
+
+      return hls
+    end
+  })
 end
 
 return M
