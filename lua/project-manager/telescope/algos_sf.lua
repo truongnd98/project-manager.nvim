@@ -3,7 +3,8 @@ local MATCH_MAX_LENGTH = 1024
 local sf = {}
 
 local function case_sensitive_has_match(needle, haystack)
-  if not string.find(haystack, needle, nil, true) then
+  local pos_start, pos_end = string.find(haystack, needle)
+  if not pos_start or pos_end < pos_start then
     return false
   end
 
@@ -50,21 +51,20 @@ local function case_sensitive_positions(needle, haystack)
   local positions = {}
   local init = 1
 
-  local inp_len = string.len(needle)
   local max = math.min(string.len(haystack), MATCH_MAX_LENGTH)
 
   while init <= max do
-    local pos = string.find(haystack, needle, init, true)
-    if not pos then
+    local pos_start, pos_end = string.find(haystack, needle, init)
+    if not pos_start or pos_end < pos_start then
       break
     end
 
-    local end_pos = pos + inp_len
-    for i = pos, end_pos - 1, 1 do
-      table.insert(positions, i)
-    end
+    table.insert(positions, {
+      start = pos_start,
+      finish = pos_end,
+    })
 
-    init = end_pos + 1;
+    init = pos_end + 1
   end
 
   return positions

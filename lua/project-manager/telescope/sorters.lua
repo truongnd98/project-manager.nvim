@@ -29,7 +29,7 @@ function M.fzy_dir_sorter(opts)
     end,
 
     highlighter = function(_, prompt, display)
-      prompt = string.gsub(prompt, "^/", "")
+      prompt = string.gsub(prompt, "^/", "", 1)
       local positions = fzy.positions(prompt, display)
 
       local hls = {}
@@ -74,7 +74,6 @@ local function getFlagOpt(s)
         f = flag,
         s = getS(flag),
         c = getC(flag),
-        p = string.gsub(s, "^" .. flag, "")
       }
       break
     end
@@ -102,13 +101,15 @@ function M.sf_sorter(opts)
       local flagOpt = sorter.state.flag
       local preFlag = flagOpt.f
 
-      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, true) then
+      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, false) then
         flagOpt = getFlagOpt(prompt)
         sorter.state.flag = flagOpt
       end
 
+      prompt = string.gsub(prompt, "^" .. (flagOpt.f or ""), "")
+
       if flagOpt.s == "#" then
-        if not sf.has_match(flagOpt.c, flagOpt.p, line) then
+        if not sf.has_match(flagOpt.c, prompt, line) then
           return -1
         end
 
@@ -116,11 +117,11 @@ function M.sf_sorter(opts)
       end
 
       if flagOpt.s == "*" then
-        if not fzy.has_match(flagOpt.c, flagOpt.p, line) then
+        if not fzy.has_match(flagOpt.c, prompt, line) then
           return -1
         end
 
-        local fzy_score = fzy.score(flagOpt.c, flagOpt.p, line)
+        local fzy_score = fzy.score(flagOpt.c, prompt, line)
 
         if fzy_score == fzy.get_score_min() then
           return 1
@@ -142,7 +143,7 @@ function M.sf_sorter(opts)
       return 1 / (fzy_score + OFFSET)
     end,
 
-    highlighter = function (sorter, prompt, display)
+    highlighter = function (sorter, prompt, dispy)
       prompt = pm_utils.format_prompt(prompt)
 
       local positions = {}
@@ -154,28 +155,34 @@ function M.sf_sorter(opts)
       local flagOpt = sorter.state.flag
       local preFlag = flagOpt.f
 
-      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, true) then
+      if not preFlag or not string.find(prompt, "^" .. preFlag, nil, false) then
         flagOpt = getFlagOpt(prompt)
         sorter.state.flag = flagOpt
       end
 
+      prompt = string.gsub(prompt, "^" .. (flagOpt.f or ""), "", 1)
+
       if flagOpt.s == "#" then
-        positions = sf.positions(flagOpt.c, flagOpt.p, display)
+        positions = sf.positions(flagOpt.c, prompt, display)
       end
 
       if flagOpt.s == "*" then
-        positions = fzy.positions(flagOpt.c, flagOpt.p, display)
+        positions = fzy.positions(flagOpt.c, prompt, display)
       end
 
       if not flagOpt.s then
-        positions = fzy.positions(nil, prompt, display)
+        positions = fzy.positions(flagOpt.c, prompt, display)
       end
 
       local hls = {}
       local highlight = opts.__highlight.finder_filter_matching.name or "TelescopeMatching"
 
       for _, value in ipairs(positions) do
-        table.insert(hls, { start = value, highlight = highlight })
+        table.insert(hls, {
+          start = value.start or value,
+          finish = value.finish or nil,
+          highlight = highlight,
+        })
       end
 
       return hls
