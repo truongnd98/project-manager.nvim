@@ -130,11 +130,11 @@ function M.sf_sorter(opts)
         return 1 / (fzy_score + OFFSET)
       end
 
-      if not fzy.has_match(nil, prompt, line) then
+      if not fzy.has_match(flagOpt.c, prompt, line) then
         return -1
       end
 
-      local fzy_score = fzy.score(nil, prompt, line)
+      local fzy_score = fzy.score(flagOpt.c, prompt, line)
 
       if fzy_score == fzy.get_score_min() then
         return 1
