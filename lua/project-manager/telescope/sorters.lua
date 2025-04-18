@@ -143,7 +143,7 @@ function M.sf_sorter(opts)
       return 1 / (fzy_score + OFFSET)
     end,
 
-    highlighter = function (sorter, prompt, dispy)
+    highlighter = function (sorter, prompt, display)
       prompt = pm_utils.format_prompt(prompt)
 
       local positions = {}
@@ -179,8 +179,8 @@ function M.sf_sorter(opts)
 
       for _, value in ipairs(positions) do
         table.insert(hls, {
-          start = value.start or value,
-          finish = value.finish or nil,
+          start = value.start,
+          finish = value.finish,
           highlight = highlight,
         })
       end

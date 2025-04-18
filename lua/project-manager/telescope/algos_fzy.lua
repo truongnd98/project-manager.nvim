@@ -193,11 +193,7 @@ local function case_sensitive_positions(needle, haystack)
   if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
     return {}
   elseif n == m then
-    local consecutive = {}
-    for i = 1, n do
-      consecutive[i] = i
-    end
-    return consecutive
+    return { start = 1, finish = n }
   end
 
   local D = {}
@@ -207,16 +203,37 @@ local function case_sensitive_positions(needle, haystack)
   local positions = {}
   local match_required = false
   local j = m
+  local pos = nil
+  local matched = nil
   for i = n, 1, -1 do
     while j >= 1 do
       if D[i][j] ~= SCORE_MIN and (match_required or D[i][j] == M[i][j]) then
         match_required = (i ~= 1) and (j ~= 1) and (M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE)
-        positions[i] = j
+        matched = j
         j = j - 1
         break
       else
         j = j - 1
       end
+    end
+
+    if matched then
+      if not pos then
+        pos = { start = matched, finish = matched }
+      else
+        if pos.start - 1 == matched then
+          pos.start = matched
+        else
+          table.insert(positions, { start = pos.start, finish = pos.finish })
+          pos = { start = matched, finish = matched }
+        end
+      end
+
+      matched = nil
+    end
+
+    if i == 1 and pos then
+      table.insert(positions, { start = pos.start, finish = pos.finish })
     end
   end
 
