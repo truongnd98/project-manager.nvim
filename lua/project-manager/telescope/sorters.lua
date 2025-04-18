@@ -89,10 +89,14 @@ function M.sf_sorter(opts)
   local OFFSET = -fzy.get_score_floor()
 
   return t_sorters.Sorter:new({
-    discard = false,
+    discard = true,
 
     scoring_function = function(sorter, prompt, line)
       prompt = pm_utils.format_prompt(prompt)
+
+      if string.len(prompt) < 4 then
+        sorter._discard_state.filtered = {}
+      end
 
       if not sorter.state.flag then
         sorter.state.flag = {}
@@ -146,6 +150,12 @@ function M.sf_sorter(opts)
     highlighter = function (sorter, prompt, display)
       prompt = pm_utils.format_prompt(prompt)
 
+      local line = display
+      local _, entry_end = string.find(display, "^ *.* ", nil, false)
+      if entry_end then
+        line = string.sub(display, entry_end + 1, string.len(display))
+      end
+
       local positions = {}
 
       if not sorter.state.flag then
@@ -163,15 +173,15 @@ function M.sf_sorter(opts)
       prompt = string.gsub(prompt, "^" .. (flagOpt.f or ""), "", 1)
 
       if flagOpt.s == "#" then
-        positions = sf.positions(flagOpt.c, prompt, display)
+        positions = sf.positions(flagOpt.c, prompt, line)
       end
 
       if flagOpt.s == "*" then
-        positions = fzy.positions(flagOpt.c, prompt, display)
+        positions = fzy.positions(flagOpt.c, prompt, line)
       end
 
       if not flagOpt.s then
-        positions = fzy.positions(flagOpt.c, prompt, display)
+        positions = fzy.positions(flagOpt.c, prompt, line)
       end
 
       local hls = {}
@@ -179,8 +189,8 @@ function M.sf_sorter(opts)
 
       for _, value in ipairs(positions) do
         table.insert(hls, {
-          start = value.start,
-          finish = value.finish,
+          start = value.start + (entry_end or  0),
+          finish = value.finish + (entry_end or 0),
           highlight = highlight,
         })
       end
